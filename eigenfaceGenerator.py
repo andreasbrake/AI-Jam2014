@@ -33,33 +33,27 @@ def computeDemeanedImages(imgId):
     # rounding everything to integers
     allImages = numpy.array(numpy.round(allImages), dtype = numpy.uint8)
     meanImage = numpy.array(numpy.round(meanImage), dtype = numpy.uint8)
-    
+
     # mean matrix currently width x height, so we flatten to 1-D array
     flatMean = numpy.resize(meanImage, (1, imgSize))
 
-    # subtract the mean from each 
-    for i in range(0, len(allImages)):
-        allImages[i] = allImages[i] - flatMean
+    # subtract the mean from each image
+    demeanedImages = numpy.matrix(allImages) - flatMean
 
-    # prints mean image to file
-    # out = Image.fromarray(meanImage)
-    # out.save("./img/Mean_" + imgId + ".gif","GIF")
-    return allImages # array of flattened demeaned images
+    # Transpose to get images as columns
+    return demeanedImages.T # array of flattened demeaned images
 
 # returns the covariance eigenvalues and eigenvectors
 def computeCovarianceEigens(demeanedImages):
-    # we want the images as columns (so imgSize x numImages)
-    demeanedImages = demeanedImages.T
-
     # numImages x numImages
-    pseudoS = numpy.array(numpy.mat(demeanedImages.T) * numpy.mat(demeanedImages))
+    pseudoS = demeanedImages.T * demeanedImages
 
     # gets the covarianceEigenValues (1 x numImages) and eigenVectors (numImages x numImages)
     covarianceEigenValues, eigenVectors = numpy.linalg.eig(pseudoS)
-    covarianceEigenVectors = numpy.array(numpy.mat(demeanedImages) * numpy.mat(eigenVectors))
+    covarianceEigenVectors = demeanedImages * eigenVectors
 
     return covarianceEigenValues, covarianceEigenVectors
-    
+
 def main():
     # range will be from 1 to 16 (15 sets of images)
     for i in range(1,2):
@@ -68,4 +62,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
