@@ -49,7 +49,7 @@ def computeDemeanedImages():
     demeanedImages = np.matrix(allImages) - flatMean
 
     # Transpose to get images as columns
-    return flatMean, demeanedImages.T, allImages # array of flattened demeaned images
+    return flatMean, demeanedImages.T # array of flattened demeaned images
 
 # returns the covariance eigenvalues and eigenvectors
 def computeCovarianceEigens(demeanedImages):
@@ -65,6 +65,7 @@ def computeCovarianceEigens(demeanedImages):
 def main():
     flatMean, demeanedImages = computeDemeanedImages()
     eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
+    projectTestFace.trainingProjections('./img/1_2_.gif', eigenVectors, demeanedImages, flatMean)
 
 if __name__ == "__main__":
     main()
