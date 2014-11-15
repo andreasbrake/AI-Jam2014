@@ -2,3 +2,4 @@
 img/
 data/
 dataFile.dat
+*.pyc
