@@ -1,6 +1,15 @@
 import os, numpy, glob
 from PIL import Image
 
+# helper function to print out a flat image taking its height and
+# width as parameters
+def printImage(flatImage, height, width):
+    # prints mean image to file
+    outArray = numpy.array(flatImage)
+    outArray.resize(height, width)
+    out = Image.fromarray(outArray)
+    out.save("./img/printoutput.gif","GIF")
+
 # compute the demeaned images for one individual's photos
 def computeDemeanedImages(imgId):
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
@@ -51,6 +60,9 @@ def computeCovarianceEigens(demeanedImages):
     # gets the covarianceEigenValues (1 x numImages) and eigenVectors (numImages x numImages)
     covarianceEigenValues, eigenVectors = numpy.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
+    
+    #printImage(covarianceEigenVectors.T[2],243,320)
+
 
     return covarianceEigenValues, covarianceEigenVectors
 
@@ -58,7 +70,7 @@ def main():
     # range will be from 1 to 16 (15 sets of images)
     for i in range(1,2):
         demeanedImages = computeDemeanedImages(str(i))
-        print computeCovarianceEigens(demeanedImages)
+        computeCovarianceEigens(demeanedImages)
 
 if __name__ == "__main__":
     main()
