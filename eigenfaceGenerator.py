@@ -14,10 +14,10 @@ def printImage(flatImage, height, width):
     out.save("./img/printoutput.gif","GIF")
 
 # compute the demeaned images for one individual's photos
-def computeDemeanedImages(imgId):
+def computeDemeanedImages():
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
 
-    for imgName in glob.glob("./img/" + imgId + "_*_.gif"):
+    for imgName in glob.glob("./img/*_*_.gif"):
         imgList.append(imgName)
 
     # Assuming all images are the same size, get dimensions of first image
@@ -42,10 +42,6 @@ def computeDemeanedImages(imgId):
         else:
             allImages = np.append(allImages, currentImage, axis=0)
 
-    # rounding everything to integers
-    allImages = np.array(np.round(allImages), dtype = np.uint8)
-    meanImage = np.array(np.round(meanImage), dtype = np.uint8)
-
     # mean matrix currently width x height, so we flatten to 1-D array
     flatMean = np.resize(meanImage, (1, imgSize))
 
@@ -63,24 +59,12 @@ def computeCovarianceEigens(demeanedImages):
     # gets the covarianceEigenValues (1 x numImages) and eigenVectors (numImages x numImages)
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
-    
-    #printImage(covarianceEigenVectors.T[2],243,320)
 
     return covarianceEigenValues, covarianceEigenVectors
 
 def main():
-    writeData = {}
-    # range will be from 1 to 16 (15 sets of images)
-    for i in range(1,3):
-        flatMean, demeanedImages, allImages = computeDemeanedImages(str(i))
-        eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
-
-        projectTestFace.trainingProjections('./img/1_2_.gif', eigenVectors, allImages)
-
-        writeData[i] = {"mean":flatMean, "eigenVectors":eigenVectors}
-
-    db.writeData(writeData)
-    db.readPersonData(1)
+    flatMean, demeanedImages = computeDemeanedImages()
+    eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
 
 if __name__ == "__main__":
     main()
