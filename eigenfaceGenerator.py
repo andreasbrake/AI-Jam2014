@@ -1,5 +1,6 @@
 import os, glob
 import numpy as np
+import dataHandler as db
 from PIL import Image
 
 # helper function to print out a flat image taking its height and
@@ -51,7 +52,7 @@ def computeDemeanedImages(imgId):
     demeanedImages = np.matrix(allImages) - flatMean
 
     # Transpose to get images as columns
-    return demeanedImages.T # array of flattened demeaned images
+    return flatMean, demeanedImages.T # array of flattened demeaned images
 
 # returns the covariance eigenvalues and eigenvectors
 def computeCovarianceEigens(demeanedImages):
@@ -67,10 +68,15 @@ def computeCovarianceEigens(demeanedImages):
     return covarianceEigenValues, covarianceEigenVectors
 
 def main():
+    writeData = {}
     # range will be from 1 to 16 (15 sets of images)
-    for i in range(1,2):
-        demeanedImages = computeDemeanedImages(str(i))
-        computeCovarianceEigens(demeanedImages)
+    for i in range(1,3):
+        flatMean, demeanedImages = computeDemeanedImages(str(i))
+        eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
+        writeData[i] = {"mean":flatMean, "eigenVectors":eigenVectors}
+
+    db.writeData(writeData)
+    db.readPersonData(1)
 
 if __name__ == "__main__":
     main()
