@@ -1,11 +1,12 @@
-import os, numpy, glob
+import os, glob
+import numpy as np
 from PIL import Image
 
 # helper function to print out a flat image taking its height and
 # width as parameters
 def printImage(flatImage, height, width):
     # prints mean image to file
-    outArray = numpy.array(flatImage)
+    outArray = np.array(flatImage)
     outArray.resize(height, width)
     out = Image.fromarray(outArray)
     out.save("./img/printoutput.gif","GIF")
@@ -22,32 +23,32 @@ def computeDemeanedImages(imgId):
     imgSize = width * height;
     numImages = len(imgList)
 
-    # Create a numpy array of floats to store the average (assume RGB images)
-    meanImage = numpy.zeros((height, width), numpy.float)
+    # Create a np array of floats to store the average (assume RGB images)
+    meanImage = np.zeros((height, width), np.float)
 
     allImages = [] # each row is flattened image
 
     # build the mean image and populates arrays
     for img in imgList:
-        currentImage = numpy.array(Image.open(img), dtype = numpy.float)
+        currentImage = np.array(Image.open(img), dtype = np.float)
         meanImage = meanImage + (currentImage / numImages)
-        currentImage = numpy.resize(currentImage, (1, imgSize))
+        currentImage = np.resize(currentImage, (1, imgSize))
 
         # type hacking
         if len(allImages) == 0:
             allImages = currentImage # initialize allImages with the currentImage
         else:
-            allImages = numpy.append(allImages, currentImage, axis=0)
+            allImages = np.append(allImages, currentImage, axis=0)
 
     # rounding everything to integers
-    allImages = numpy.array(numpy.round(allImages), dtype = numpy.uint8)
-    meanImage = numpy.array(numpy.round(meanImage), dtype = numpy.uint8)
+    allImages = np.array(np.round(allImages), dtype = np.uint8)
+    meanImage = np.array(np.round(meanImage), dtype = np.uint8)
 
     # mean matrix currently width x height, so we flatten to 1-D array
-    flatMean = numpy.resize(meanImage, (1, imgSize))
+    flatMean = np.resize(meanImage, (1, imgSize))
 
     # subtract the mean from each image
-    demeanedImages = numpy.matrix(allImages) - flatMean
+    demeanedImages = np.matrix(allImages) - flatMean
 
     # Transpose to get images as columns
     return demeanedImages.T # array of flattened demeaned images
@@ -58,11 +59,10 @@ def computeCovarianceEigens(demeanedImages):
     pseudoS = demeanedImages.T * demeanedImages
 
     # gets the covarianceEigenValues (1 x numImages) and eigenVectors (numImages x numImages)
-    covarianceEigenValues, eigenVectors = numpy.linalg.eig(pseudoS)
+    covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
     
     #printImage(covarianceEigenVectors.T[2],243,320)
-
 
     return covarianceEigenValues, covarianceEigenVectors
 
