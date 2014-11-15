@@ -46,9 +46,10 @@ def getMeanOf(imgId):
     eigenValues, eigenVectors = numpy.linalg.eig(bigSquare)
 
     SeigenVectors = numpy.array(numpy.mat(bigArray) * numpy.mat(eigenVectors))
-    print SeigenVectors[0]
+    print len(SeigenVectors), len(SeigenVectors[0])
     print eigenVectors[i]
-
+    eigenFaces = SeigenVectors.T
+    print eigenFaces[0]
     out=Image.fromarray(arr)
     #print "creating mean at: " + "./img/" + imgId + "Mean.gif"
     out.save("./img/Mean_" + imgId + ".gif","GIF")
