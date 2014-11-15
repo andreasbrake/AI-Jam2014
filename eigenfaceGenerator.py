@@ -2,6 +2,7 @@ import os, glob
 import numpy as np
 import dataHandler as db
 from PIL import Image
+import projectFaceIntoEigenspace as projectTestFace
 
 # helper function to print out a flat image taking its height and
 # width as parameters
@@ -52,7 +53,7 @@ def computeDemeanedImages(imgId):
     demeanedImages = np.matrix(allImages) - flatMean
 
     # Transpose to get images as columns
-    return flatMean, demeanedImages.T # array of flattened demeaned images
+    return flatMean, demeanedImages.T, allImages # array of flattened demeaned images
 
 # returns the covariance eigenvalues and eigenvectors
 def computeCovarianceEigens(demeanedImages):
@@ -71,8 +72,11 @@ def main():
     writeData = {}
     # range will be from 1 to 16 (15 sets of images)
     for i in range(1,3):
-        flatMean, demeanedImages = computeDemeanedImages(str(i))
+        flatMean, demeanedImages, allImages = computeDemeanedImages(str(i))
         eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
+
+        projectTestFace.trainingProjections('./img/1_2_.gif', eigenVectors, allImages)
+
         writeData[i] = {"mean":flatMean, "eigenVectors":eigenVectors}
 
     db.writeData(writeData)
