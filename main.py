@@ -12,7 +12,7 @@ def main():
         pathname = os.path.abspath(sys.argv[1])
         if os.path.isfile(pathname):                
             readData = dh.readData()
-            print(eigProj.trainingProjections(pathname, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"]))
+            print(eigProj.trainingProjections(pathname, readData["imgList"], readData["fisherFaces"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"]))
         else:
             print("Error: must pass valid file.\n", file=sys.stderr)
 

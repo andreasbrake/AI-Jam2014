@@ -1,6 +1,8 @@
 import sys, os, time
+import numpy as np
 import dataHandler as dh
 import eigenfaceGenerator as eigGen
+import fisherFaces as ff
 
 def main():
     startTime = time.time()
@@ -17,8 +19,14 @@ def main():
             print("Error: must pass valid file to exclude")
             return
     imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(excludeFile)
-    eigenVectors, eigenValues, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
-    writeData = {"imgList":imgList,"flatMean":flatMean,"demeanedImages":demeanedImages,"eigenVectors":eigenVectors, "eigenValues":eigenValues, "trainingDistances":trainingDistances, "threshold":threshold}
+    pcaEigenvectors, pcaEigenvalues, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
+
+    imgList = np.delete(imgList, deletedIndices)
+    demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
+
+    fisherFaces, trainingDistances, threshold = ff.generateFisherFaces(pcaEigenvectors, imgList, demeanedImages)
+    writeData = {"imgList":imgList,"flatMean":flatMean,"demeanedImages":demeanedImages,"fisherFaces":fisherFaces, "trainingDistances":trainingDistances, "threshold":threshold}
+    
     print "time to generate: " + str(time.time() - startTime)
     dh.writeData(writeData)
     print "time taken: " + str(time.time() - startTime)

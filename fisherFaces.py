@@ -5,8 +5,9 @@ import eigenfaceGenerator as eigGen
 
 # calculate the eigenvalues/eigenvectors/Sb/Sw
 def lda(X, globalMu):
-    Sb = np.zeros((114, 114))
-    Sw = np.zeros((114, 114))
+    projectionLength = X[0][0].shape[1]
+    Sb = np.zeros((projectionLength, projectionLength))
+    Sw = np.zeros((projectionLength, projectionLength))
 
     for i in range(len(X)):
         Xi = X[i]
@@ -26,15 +27,7 @@ def lda(X, globalMu):
 
     return eigenValues, eigenVectors
 
-def main():
-    # Compute demeanedImages
-    imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages()
-
-    # Do PCA first to reduce the space so that computing LDA is tractable
-    pcaEigenvectors, pcaEigenvalues, training, threshold, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
-    imgList = np.delete(imgList, deletedIndices)
-    demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
-
+def generateFisherFaces(pcaEigenvectors, imgList, demeanedImages):
     # Project into the PCA space
     projected = np.dot(demeanedImages.T, pcaEigenvectors)
 
@@ -57,16 +50,37 @@ def main():
     ldaEigenvalues, ldaEigenvectors = lda(classified, projectedGlobalMean)
 
     fisherFaces = np.dot(pcaEigenvectors, ldaEigenvectors)
-    for i in range(len(fisherFaces.T)):
-        faceImage = fisherFaces.T[i]
-        min = np.amin(faceImage)
-        # scale up to 0
-        faceImage = faceImage + abs(min)
-        # map the max to 1
-        max = np.amax(faceImage)
-        faceImage = faceImage / max
-        # scale all to 255
-        faceImage = 255 * faceImage
-        eigGen.printImage("ff_" + str(i), faceImage, 243, 320)
+    #for i in range(len(fisherFaces.T)):
+    #    faceImage = fisherFaces.T[i]
+    #    min = np.amin(faceImage)
+    #    # scale up to 0
+    #    faceImage = faceImage + abs(min)
+    #    # map the max to 1
+    #    max = np.amax(faceImage)
+    #    faceImage = faceImage / max
+    #    # scale all to 255
+    #    faceImage = 255 * faceImage
+    #    eigGen.printImage("ff_" + str(i), faceImage, 243, 320)
+
+    # determine the distances between all training images
+    trainingDistances = []
+    fisherFacesTranspose = fisherFaces.T
+    demeanedImagesTranspose = demeanedImages.T
+
+    for i in range(len(demeanedImagesTranspose)):
+        trainingDistances.append(fisherFacesTranspose * demeanedImagesTranspose[i,:].T)
+
+    # Compute the threshold
+    threshold = 1
+    for i in range(len(trainingDistances)):
+        for k in range(i, len(trainingDistances)):
+            curDist = np.linalg.norm(trainingDistances[i] - trainingDistances[k])
+            if curDist > threshold:
+                threshold = curDist
+
+    # Half the max as per powerpoint slideshow from the internet
+    threshold /= 2
+    
+    return fisherFaces, trainingDistances, threshold
 if __name__ == "__main__":
     main()

@@ -61,7 +61,7 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
-    threshold = 1
+    eigenValueMin = 1
     eigenVectorsToRemove = []
     temCovar = []
     # remove the inaccurate eigenfaces
@@ -81,7 +81,7 @@ def computeCovarianceEigens(demeanedImages):
         covarianceEigenVectors = temCovar.T
 
         #printImage("eigen_" + str(i), temCovar[i], 243, 320)
-        if covarianceEigenValues[i] < threshold:
+        if covarianceEigenValues[i] < eigenValueMin:
             eigenVectorsToRemove.append(i)
 
     #print list(np.array(covarianceEigenVectors.T[0])[0])
@@ -91,25 +91,5 @@ def computeCovarianceEigens(demeanedImages):
     # eigenVectorsToRemove = np.append(eigenVectorsToRemove, ind)
     covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
 
-    # determine the distances between all training images
-    trainingDistances = []
-    faceSpaceTranspose = covarianceEigenVectors.T
-    demeanedImagesTranspose = demeanedImages.T
 
-    for i in range(len(demeanedImagesTranspose)):
-        trainingDistances.append(faceSpaceTranspose * demeanedImagesTranspose[i,:].T)
-
-    # Compute the threshold
-    threshold = 0
-    for i in range(len(trainingDistances)):
-        for k in range(i, len(trainingDistances)):
-            curDist = np.linalg.norm(trainingDistances[i] - trainingDistances[k])
-            if curDist > threshold:
-                threshold = curDist
-
-    # Half the max as per powerpoint slideshow from the internet
-    threshold /= 2
-
-    #print np.uint8(covarianceEigenValues)
-
-    return covarianceEigenVectors,covarianceEigenValues, trainingDistances, threshold, eigenVectorsToRemove
+    return covarianceEigenVectors, covarianceEigenValues, eigenVectorsToRemove
