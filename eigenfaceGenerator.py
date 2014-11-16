@@ -12,12 +12,14 @@ def printImage(name, flatImage, height, width):
     out.save("./img/" + name + ".gif","GIF")
 
 # compute the demeaned images for one individual's photos
-def computeDemeanedImages():
+def computeDemeanedImages(excludeFile):
+    print "excluding: " + excludeFile
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
 
     for imgName in glob.glob("./img/*_*_.gif"):
-        imgList.append(imgName)
-    #imgList.remove("./img/8_1_.gif")
+        imgName = imgName.replace("\\","/")
+        if imgName != excludeFile:
+            imgList.append(imgName)
     
     # Assuming all images are the same size, get dimensions of first image
     width, height = Image.open(imgList[0]).size
