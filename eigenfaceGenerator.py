@@ -2,16 +2,15 @@ import os, glob
 import numpy as np
 import dataHandler as db
 from PIL import Image
-import projectFaceIntoEigenspace as projectTestFace
 
 # helper function to print out a flat image taking its height and
 # width as parameters
-def printImage(flatImage, height, width):
+def printImage(name, flatImage, height, width):
     # prints mean image to file
     outArray = np.array(flatImage)
     outArray.resize(height, width)
     out = Image.fromarray(outArray)
-    out.save("./img/printoutput.gif","GIF")
+    out.save("./img/" + name + ".gif","GIF")
 
 # compute the demeaned images for one individual's photos
 def computeDemeanedImages():
@@ -19,8 +18,8 @@ def computeDemeanedImages():
 
     for imgName in glob.glob("./img/*_*_.gif"):
         imgList.append(imgName)
-    #imgList.remove('./img/4_3_.gif')
-
+    #imgList.remove("./img/8_1_.gif")
+    
     # Assuming all images are the same size, get dimensions of first image
     width, height = Image.open(imgList[0]).size
     imgSize = width * height;
@@ -49,7 +48,7 @@ def computeDemeanedImages():
     # subtract the mean from each image
     demeanedImages = np.matrix(allImages) - flatMean
 
-    printImage(demeanedImages[9], height, width)
+    #printImage(demeanedImages[9], height, width)
 
     # Transpose to get images as columns
     return imgList, flatMean, demeanedImages.T # array of flattened demeaned images
@@ -63,24 +62,21 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
+    threshold = 100000000
+    eigenVectorsToRemove = []
+    # remove the inaccurate eigenfaces
+    for i in range(len(covarianceEigenValues)):
+        temCovar = covarianceEigenVectors.T
+        temCovar[i] = 255 * (covarianceEigenVectors.T[i] / np.linalg.norm(covarianceEigenVectors.T[i]))
+        covarianceEigenVectors = temCovar.T
+
+        #printImage("eigen_" + str(i), covarianceEigenVectors.T[i], 243, 320)
+        if covarianceEigenValues[i] < threshold:
+            eigenVectorsToRemove.append(i)
+
+    #print list(np.array(covarianceEigenVectors.T[0])[0])
+    covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
+
+    #print np.uint8(covarianceEigenValues)
+
     return covarianceEigenValues, covarianceEigenVectors
-
-def main():
-    imgList, flatMean, demeanedImages = computeDemeanedImages()
-    eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
-    #print np.uint8(eigenValues)
-    #printImage(eigenVectors.T[9], 243, 320)
-
-    #decentEigenVectors = []
-
-    #for i in range(len(eigenValues)):
-    #    if eigenValues[i] < 100:
-    #        print "deleting " + str(i)
-    #        decentEigenVectors = np.delete(decentEigenVectors, i, 0)
-
-    # print decentEigenVectors.shape
-
-    projectTestFace.trainingProjections('./img/4_3_.gif', imgList, eigenVectors, demeanedImages, flatMean)
-
-if __name__ == "__main__":
-    main()
