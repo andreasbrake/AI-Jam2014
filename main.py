@@ -25,9 +25,9 @@ def main():
 # added this method to ease unit testing
 def test(imgPath):
 	imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(imgPath)
-	eigenVectors = eigGen.computeCovarianceEigens(demeanedImages)
-	readData = {"imgList":imgList, "flatMean":flatMean, "demeanedImages":demeanedImages, "eigenVectors":eigenVectors}
-	return eigProj.trainingProjections(imgPath, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"])
+	eigenVectors, eigenValues, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
+	readData = {"imgList":imgList, "flatMean":flatMean, "demeanedImages":demeanedImages, "eigenVectors":eigenVectors, "trainingDistances":trainingDistances, "threshold":threshold}
+	return eigProj.trainingProjections(imgPath, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"])
 
 if __name__ == "__main__":
     main()
