@@ -19,6 +19,7 @@ def computeDemeanedImages():
 
     for imgName in glob.glob("./img/*_*_.gif"):
         imgList.append(imgName)
+    #imgList.remove('./img/4_3_.gif')
 
     # Assuming all images are the same size, get dimensions of first image
     width, height = Image.open(imgList[0]).size
@@ -48,8 +49,10 @@ def computeDemeanedImages():
     # subtract the mean from each image
     demeanedImages = np.matrix(allImages) - flatMean
 
+    printImage(demeanedImages[9], height, width)
+
     # Transpose to get images as columns
-    return flatMean, demeanedImages.T # array of flattened demeaned images
+    return imgList, flatMean, demeanedImages.T # array of flattened demeaned images
 
 # returns the covariance eigenvalues and eigenvectors
 def computeCovarianceEigens(demeanedImages):
@@ -63,9 +66,21 @@ def computeCovarianceEigens(demeanedImages):
     return covarianceEigenValues, covarianceEigenVectors
 
 def main():
-    flatMean, demeanedImages = computeDemeanedImages()
+    imgList, flatMean, demeanedImages = computeDemeanedImages()
     eigenValues, eigenVectors = computeCovarianceEigens(demeanedImages)
-    projectTestFace.trainingProjections('./img/1_2_.gif', eigenVectors, demeanedImages, flatMean)
+    #print np.uint8(eigenValues)
+    #printImage(eigenVectors.T[9], 243, 320)
+
+    #decentEigenVectors = []
+
+    #for i in range(len(eigenValues)):
+    #    if eigenValues[i] < 100:
+    #        print "deleting " + str(i)
+    #        decentEigenVectors = np.delete(decentEigenVectors, i, 0)
+
+    # print decentEigenVectors.shape
+
+    projectTestFace.trainingProjections('./img/4_3_.gif', imgList, eigenVectors, demeanedImages, flatMean)
 
 if __name__ == "__main__":
     main()
