@@ -18,7 +18,7 @@ def main():
             if os.path.isfile(pathname):
                 excludeFile = sys.argv[2].replace("\\","/")
             else:
-                print("Error: must pass valid file to exclude")
+                print("Error: must pass valid file to exclude.\n", file=sys.stderr)
                 return
         imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(excludeFile)
         eigenVectors, eigenValues, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
@@ -40,5 +40,13 @@ def main():
         print("Usage: python main.py blah.gif\n")
 
     print("time take: " + str(time.time() - startTime))
+
+# added this method to ease unit testing
+def test(imgPath):
+	imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(imgPath)
+	eigenVectors = eigGen.computeCovarianceEigens(demeanedImages)
+	readData = {"imgList":imgList, "flatMean":flatMean, "demeanedImages":demeanedImages, "eigenVectors":eigenVectors}
+	return eigProj.trainingProjections(imgPath, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"])
+
 if __name__ == "__main__":
     main()
