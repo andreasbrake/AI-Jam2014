@@ -15,7 +15,7 @@ class TestRecognition():
 		for imgName in glob.glob("./img/*_*_.gif"):
 			
 			# determine the slicing based on file name
-			end = 9 if self.isNumber(imgName[7:9]) else 8
+			end = 8 if self.isNumber(imgName[6:8]) else 7
 
 			expected = imgName[7:end]
 			actual = main.test(imgName) # test each face from the data set
