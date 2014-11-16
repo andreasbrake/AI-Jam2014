@@ -63,17 +63,32 @@ def computeCovarianceEigens(demeanedImages):
 
     threshold = 100000000
     eigenVectorsToRemove = []
+    temCovar = []
     # remove the inaccurate eigenfaces
     for i in range(len(covarianceEigenValues)):
         temCovar = covarianceEigenVectors.T
-        temCovar[i] = 255 * (covarianceEigenVectors.T[i] / np.linalg.norm(covarianceEigenVectors.T[i]))
+        temCovar[i] = (covarianceEigenVectors.T[i] / np.linalg.norm(covarianceEigenVectors.T[i]))
+
+        #min = np.amin(temCovar[i])
+        # scale up to 0
+        #temCovar[i] = temCovar[i] + abs(min)
+        # map the max to 1
+        #max = np.amax(temCovar[i])
+        #temCovar[i] = temCovar[i] / max
+        # scale all to 255
+        #temCovar[i] = 255 * temCovar[i]
+
         covarianceEigenVectors = temCovar.T
 
-        #printImage("eigen_" + str(i), covarianceEigenVectors.T[i], 243, 320)
+        #printImage("eigen_" + str(i), temCovar[i], 243, 320)
         if covarianceEigenValues[i] < threshold:
             eigenVectorsToRemove.append(i)
 
     #print list(np.array(covarianceEigenVectors.T[0])[0])
+
+    # TODO: try benchmark with top 3 removed as suggested in that one paper
+    # ind = np.argpartition(covarianceEigenValues, -3)[-3:]
+    # eigenVectorsToRemove = np.append(eigenVectorsToRemove, ind)
     covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
 
     # determine the distances between all training images
