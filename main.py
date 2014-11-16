@@ -15,7 +15,6 @@ def main():
             print(eigProj.trainingProjections(pathname, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"]))
         else:
             print("Error: must pass valid file.\n", file=sys.stderr)
-
     else:
         print("Error: must pass the path to an image filename.", file=sys.stderr)
         print("Usage: python main.py blah.gif\n")

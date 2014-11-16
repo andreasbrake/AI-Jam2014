@@ -1,9 +1,8 @@
-import os, glob
+import glob
 import numpy as np
 from PIL import Image
 
-# helper function to print out a flat image taking its height and
-# width as parameters
+# helper function to print out a flat image taking its height and width 
 def printImage(name, flatImage, height=243, width=320):
     # prints mean image to file
     outArray = np.array(flatImage)
@@ -61,22 +60,14 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
-    threshold = 100000000
+    threshold = 10
     eigenVectorsToRemove = []
     temCovar = []
+    
     # remove the inaccurate eigenfaces
     for i in range(len(covarianceEigenValues)):
         temCovar = covarianceEigenVectors.T
         temCovar[i] = (covarianceEigenVectors.T[i] / np.linalg.norm(covarianceEigenVectors.T[i]))
-
-        #min = np.amin(temCovar[i])
-        # scale up to 0
-        #temCovar[i] = temCovar[i] + abs(min)
-        # map the max to 1
-        #max = np.amax(temCovar[i])
-        #temCovar[i] = temCovar[i] / max
-        # scale all to 255
-        #temCovar[i] = 255 * temCovar[i]
 
         covarianceEigenVectors = temCovar.T
 

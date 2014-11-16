@@ -1,6 +1,5 @@
 import main # code under test
 import glob
-import dataHandler as dh
 import pprint
 
 # testing output from our algorithm to determine improvements or regressions
@@ -33,7 +32,7 @@ class TestRecognition():
 		print "Incorrect images and their matches:"
 		pprint.pprint(incorrect) 
 		print "\nNumber correct: " + str(numCorrect) + " out of " + str(total)
-		print "Percentage correct: " + str ((numCorrect/total) * 100) + "%\n"
+		print "Percentage correct: " + str ( (float(numCorrect)/float(total) ) * 100) + "%\n"
 
 	# helper to check for the number portion of filename
 	def isNumber(self, s):
