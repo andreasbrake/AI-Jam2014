@@ -15,9 +15,9 @@ class TestRecognition():
 		for imgName in glob.glob("./img/*_*_.gif"):
 			
 			# determine the slicing based on file name
-			end = 8 if self.isNumber(imgName[6:8]) else 7
+			end = 9 if self.isNumber(imgName[7:9]) else 8
 
-			expected = imgName[6:end]
+			expected = imgName[7:end]
 			actual = main.test(imgName) # test each face from the data set
 
 			if (expected == actual):
@@ -29,9 +29,10 @@ class TestRecognition():
 
 			total += 1
 
-		print "Number correct out of " + total + " = " numCorrect + "\n"
 		print "Incorrect images and their matches:"
-		pprint(incorrect) 
+		pprint.pprint(incorrect) 
+		print "\nNumber correct: " + str(numCorrect) + " out of " + str(total)
+		print "Percentage correct: " + str ((numCorrect/total) * 100) + "%\n"
 
 	# helper to check for the number portion of filename
 	def isNumber(self, s):
