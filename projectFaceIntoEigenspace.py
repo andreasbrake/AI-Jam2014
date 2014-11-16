@@ -8,16 +8,7 @@ import re
 # function to calculate the projections of the training images and and the test image
 # in the face space (eigen faces)
 # faceSpace and traingingSpace currently passed with vectors as columns
-def trainingProjections(testImage, imgList, faceSpace, demeanedImages, flatMean):
-
-    trainingDistances = []
-
-    faceSpaceTranspose = faceSpace.T
-    demeanedImagesTranspose = demeanedImages.T
-
-    for i in range(len(demeanedImagesTranspose)):
-        trainingDistances.append(faceSpaceTranspose * demeanedImagesTranspose[i,:].T)
-
+def trainingProjections(testImage, imgList, faceSpace, demeanedImages, flatMean, trainingDistances, threshold):
     # retrieve and flatten test image
     testImage = np.array(Image.open(testImage), dtype = np.float)
     testImage = np.resize(testImage, (1, 77760))
@@ -27,19 +18,8 @@ def trainingProjections(testImage, imgList, faceSpace, demeanedImages, flatMean)
     #eg.printImage((testImage - flatMean), 243, 320)
 
 
-    xf = faceSpaceTranspose * (testImage + flatMean).T
+    xf = faceSpace.T * (testImage + flatMean).T
     reconDist = np.linalg.norm(testImage - xf)
-
-    # Compute the threshold
-    threshold = 0
-    for i in range(len(trainingDistances)):
-        for k in range(i, len(trainingDistances)):
-            curDist = np.linalg.norm(trainingDistances[i] - trainingDistances[k])
-            if curDist > threshold:
-                threshold = curDist
-
-    # Half the max as per powerpoint slideshow from the internet
-    threshold /= 2
 
     # Compute the min distance from the test image to the face space
     distance = float("inf")

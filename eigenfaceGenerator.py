@@ -49,8 +49,6 @@ def computeDemeanedImages(excludeFile):
     # subtract the mean from each image
     demeanedImages = np.matrix(allImages) - flatMean
 
-    #printImage(demeanedImages[9], height, width)
-
     # Transpose to get images as columns
     return imgList, flatMean, demeanedImages.T # array of flattened demeaned images
 
@@ -78,6 +76,25 @@ def computeCovarianceEigens(demeanedImages):
     #print list(np.array(covarianceEigenVectors.T[0])[0])
     covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
 
+    # determine the distances between all training images
+    trainingDistances = []
+    faceSpaceTranspose = covarianceEigenVectors.T
+    demeanedImagesTranspose = demeanedImages.T
+
+    for i in range(len(demeanedImagesTranspose)):
+        trainingDistances.append(faceSpaceTranspose * demeanedImagesTranspose[i,:].T)
+
+    # Compute the threshold
+    threshold = 0
+    for i in range(len(trainingDistances)):
+        for k in range(i, len(trainingDistances)):
+            curDist = np.linalg.norm(trainingDistances[i] - trainingDistances[k])
+            if curDist > threshold:
+                threshold = curDist
+
+    # Half the max as per powerpoint slideshow from the internet
+    threshold /= 2
+
     #print np.uint8(covarianceEigenValues)
 
-    return covarianceEigenVectors
+    return covarianceEigenVectors,covarianceEigenValues, trainingDistances, threshold
