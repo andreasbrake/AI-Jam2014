@@ -1,7 +1,5 @@
-import glob, re
-from PIL import Image
+import re
 import numpy as np
-import eigenfaceGenerator as eigGen
 
 # calculate the eigenvalues/eigenvectors/Sb/Sw
 def lda(X, globalMu):
@@ -50,17 +48,6 @@ def generateFisherFaces(pcaEigenvectors, imgList, demeanedImages):
     ldaEigenvalues, ldaEigenvectors = lda(classified, projectedGlobalMean)
 
     fisherFaces = np.dot(pcaEigenvectors, ldaEigenvectors)
-    #for i in range(len(fisherFaces.T)):
-    #    faceImage = fisherFaces.T[i]
-    #    min = np.amin(faceImage)
-    #    # scale up to 0
-    #    faceImage = faceImage + abs(min)
-    #    # map the max to 1
-    #    max = np.amax(faceImage)
-    #    faceImage = faceImage / max
-    #    # scale all to 255
-    #    faceImage = 255 * faceImage
-    #    eigGen.printImage("ff_" + str(i), faceImage, 243, 320)
 
     # determine the distances between all training images
     trainingDistances = []

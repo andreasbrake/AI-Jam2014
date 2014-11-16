@@ -3,6 +3,8 @@ import sys, os, time
 import eigenfaceGenerator as eigGen
 import dataHandler as dh
 import projectFaceIntoEigenspace as eigProj
+import numpy as np
+import fisherFaces as ff
 
 def main():
     startTime = time.time()
@@ -25,9 +27,12 @@ def main():
 # added this method to ease unit testing
 def test(imgPath):
 	imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(imgPath)
-	eigenVectors, eigenValues, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
-	readData = {"imgList":imgList, "flatMean":flatMean, "demeanedImages":demeanedImages, "eigenVectors":eigenVectors, "trainingDistances":trainingDistances, "threshold":threshold}
-	return eigProj.trainingProjections(imgPath, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"])
+	pcaEigenvectors, eigenValues, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
+	imgList = np.delete(imgList, deletedIndices)
+	demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
+	fisherFaces, trainingDistances, threshold = ff.generateFisherFaces(pcaEigenvectors, imgList, demeanedImages)
+	readData = {"imgList":imgList, "flatMean":flatMean, "demeanedImages":demeanedImages, "fisherFaces":fisherFaces, "trainingDistances":trainingDistances, "threshold":threshold}
+	return eigProj.trainingProjections(imgPath, readData["imgList"], readData["fisherFaces"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"])
 
 if __name__ == "__main__":
     main()

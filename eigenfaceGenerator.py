@@ -1,9 +1,8 @@
-import os, glob
+import glob
 import numpy as np
 from PIL import Image
 
-# helper function to print out a flat image taking its height and
-# width as parameters
+# helper function to print out a flat image taking its height and width
 def printImage(name, flatImage, height=243, width=320):
     # prints mean image to file
     outArray = np.array(flatImage)
@@ -30,7 +29,6 @@ def computeDemeanedImages(excludeFile=""):
     meanImage = np.zeros((height, width), np.float)
 
     allImages = [] # each row is flattened image
-
     # build the mean image and populates arrays
     for img in imgList:
         currentImage = np.array(Image.open(img), dtype = np.float)
@@ -64,19 +62,11 @@ def computeCovarianceEigens(demeanedImages):
     eigenValueMin = 1
     eigenVectorsToRemove = []
     temCovar = []
+
     # remove the inaccurate eigenfaces
     for i in range(len(covarianceEigenValues)):
         temCovar = covarianceEigenVectors.T
         temCovar[i] = (covarianceEigenVectors.T[i] / np.linalg.norm(covarianceEigenVectors.T[i]))
-
-        #min = np.amin(temCovar[i])
-        # scale up to 0
-        #temCovar[i] = temCovar[i] + abs(min)
-        # map the max to 1
-        #max = np.amax(temCovar[i])
-        #temCovar[i] = temCovar[i] / max
-        # scale all to 255
-        #temCovar[i] = 255 * temCovar[i]
 
         covarianceEigenVectors = temCovar.T
 
@@ -90,6 +80,5 @@ def computeCovarianceEigens(demeanedImages):
     # ind = np.argpartition(covarianceEigenValues, -3)[-3:]
     # eigenVectorsToRemove = np.append(eigenVectorsToRemove, ind)
     covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
-
 
     return covarianceEigenVectors, covarianceEigenValues, eigenVectorsToRemove
