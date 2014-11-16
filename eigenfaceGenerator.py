@@ -4,7 +4,7 @@ from PIL import Image
 
 # helper function to print out a flat image taking its height and
 # width as parameters
-def printImage(name, flatImage, height, width):
+def printImage(name, flatImage, height=243, width=320):
     # prints mean image to file
     outArray = np.array(flatImage)
     outArray.resize(height, width)
@@ -12,7 +12,7 @@ def printImage(name, flatImage, height, width):
     out.save("./img/" + name + ".gif","GIF")
 
 # compute the demeaned images for one individual's photos
-def computeDemeanedImages(excludeFile):
+def computeDemeanedImages(excludeFile=""):
     print "excluding: " + excludeFile
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
 
