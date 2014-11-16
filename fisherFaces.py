@@ -1,53 +1,79 @@
-import glob
+import glob, re
 from PIL import Image
 import numpy as np
 import eigenfaceGenerator as eigGen
 
-def lda(X):
-    print "Mozzletoff"
-
 # calculate the eigenvalues/eigenvectors/Sb/Sw
-def createClass(i):
-    images = []
+def lda(X, globalMu):
+    print X[0][0].shape
+    Sb = np.zeros((114, 114))
+    Sw = np.zeros((114, 114))
 
-    # Open images and return them
-    for image in glob.glob("./img/" + str(i) + "_*_.gif"):
-        currentImage = np.array(Image.open(image), dtype=np.float)
-        currentImage = np.resize(currentImage, (1, 77760))
-        images.append(currentImage)
-    # return
+    for i in range(len(X)):
+        Xi = X[i]
+        classMu = np.mean(Xi)        
+        # The number of samples for this class
+        Ni = len(Xi)
 
-    return images
+        SbDeltaMu = classMu - globalMu
+        Sb = Sb + (Ni * np.dot(SbDeltaMu.T, SbDeltaMu))
+
+        for k in range(Ni):
+            xk = Xi[k]
+            SwDeltaMu = xk - classMu
+            Sw = Sw + np.dot(SwDeltaMu.T, SwDeltaMu)
+
+    #print type(Sb), type(Sb[0]), type(Sb[0][0]), type(Sb[0][0][0])
+    #print Sb.shape, Sw.shape
+    eigenValues, eigenVectors = np.linalg.eig(np.linalg.inv(Sw) * Sb)
+
+    return eigenValues, eigenVectors
 
 def main():
     # Compute demeanedImages
     imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages()
 
     # Do PCA first to reduce the space so that computing LDA is tractable
-    pcaEigenvectors, pcaEigenvalues = eigGen.computeCovarianceEigens(demeanedImages)
+    pcaEigenvectors, pcaEigenvalues, training, threshold, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
+    print pcaEigenvalues
+    imgList = np.delete(imgList, deletedIndices)
+    demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
+    print demeanedImages.shape
 
     # Project into the PCA space
-    projected = np.dot(pcaEigenvectors, demeanedImages)
-
+    print pcaEigenvectors.shape
+    projected = np.dot(demeanedImages.T, pcaEigenvectors)
     print projected.shape
 
     # Compute new global mean
-    globalMean = projected.mean(0)
+    projectedGlobalMean = projected.mean(0)
 
     # Classify eigenfaces according to which person they belong to
     classified = [None] * 15
-    for i in imgList:
+    for idx in range(len(imgList)):
         # get the id of the person
-        personId = re.search('[^\d]*(\d+)_\d+_.gif', imgList[idx]).group(1)
+        personId = int(re.search('[^\d]*(\d+)_\d+_.gif', imgList[idx]).group(1))
 
         # insert into the classification
-        if classified[personId] == None:
-            classified[personId] = []
+        if classified[personId - 1] == None:
+            classified[personId - 1] = []
         
-        classified[personId].append(projected[i])
+        classified[personId - 1].append(projected[idx])
 
     # Do LDA in the PCA space
-    ldaEigenvalues, ldaEigenvectors = lda(classified)
+    ldaEigenvalues, ldaEigenvectors = lda(classified, projectedGlobalMean)
 
+    fisherFaces = np.dot(pcaEigenvectors, ldaEigenvectors)
+    for i in range(len(fisherFaces.T)):
+        faceImage = fisherFaces.T[i]
+        min = np.amin(faceImage)
+        # scale up to 0
+        faceImage = faceImage + abs(min)
+        # map the max to 1
+        max = np.amax(faceImage)
+        faceImage = faceImage / max
+        # scale all to 255
+        faceImage = 255 * faceImage
+        eigGen.printImage("ff_" + str(i), faceImage, 243, 320)
 if __name__ == "__main__":
     main()
