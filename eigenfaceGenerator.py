@@ -8,12 +8,12 @@ def printImage(name, flatImage, height=243, width=320):
     # prints mean image to file
     outArray = np.array(flatImage)
     outArray.resize(height, width)
+    outArray = np.real(outArray)
     out = Image.fromarray(outArray)
     out.save("./img/" + name + ".gif","GIF")
 
 # compute the demeaned images for one individual's photos
 def computeDemeanedImages(excludeFile=""):
-    print "excluding: " + excludeFile
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
 
     for imgName in glob.glob("./img/*_*_.gif"):
@@ -61,7 +61,7 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
-    threshold = 100000000
+    threshold = 1
     eigenVectorsToRemove = []
     temCovar = []
     # remove the inaccurate eigenfaces
@@ -112,4 +112,4 @@ def computeCovarianceEigens(demeanedImages):
 
     #print np.uint8(covarianceEigenValues)
 
-    return covarianceEigenVectors,covarianceEigenValues, trainingDistances, threshold
+    return covarianceEigenVectors,covarianceEigenValues, trainingDistances, threshold, eigenVectorsToRemove

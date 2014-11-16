@@ -5,7 +5,6 @@ import eigenfaceGenerator as eigGen
 
 # calculate the eigenvalues/eigenvectors/Sb/Sw
 def lda(X, globalMu):
-    print X[0][0].shape
     Sb = np.zeros((114, 114))
     Sw = np.zeros((114, 114))
 
@@ -23,8 +22,6 @@ def lda(X, globalMu):
             SwDeltaMu = xk - classMu
             Sw = Sw + np.dot(SwDeltaMu.T, SwDeltaMu)
 
-    #print type(Sb), type(Sb[0]), type(Sb[0][0]), type(Sb[0][0][0])
-    #print Sb.shape, Sw.shape
     eigenValues, eigenVectors = np.linalg.eig(np.linalg.inv(Sw) * Sb)
 
     return eigenValues, eigenVectors
@@ -35,15 +32,11 @@ def main():
 
     # Do PCA first to reduce the space so that computing LDA is tractable
     pcaEigenvectors, pcaEigenvalues, training, threshold, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
-    print pcaEigenvalues
     imgList = np.delete(imgList, deletedIndices)
     demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
-    print demeanedImages.shape
 
     # Project into the PCA space
-    print pcaEigenvectors.shape
     projected = np.dot(demeanedImages.T, pcaEigenvectors)
-    print projected.shape
 
     # Compute new global mean
     projectedGlobalMean = projected.mean(0)
