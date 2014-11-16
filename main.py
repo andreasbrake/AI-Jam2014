@@ -1,33 +1,14 @@
 from __future__ import print_function
-import sys, os
-import time
+import sys, os, time
 import eigenfaceGenerator as eigGen
 import dataHandler as dh
 import projectFaceIntoEigenspace as eigProj
 
 def main():
     startTime = time.time()
-    # if the user specifies a generate, it reads through the faces
-    # in ./img and and generates mean- and eigen- faces. These are
-    # stored via pickle in the file "dataFile.dat"
-    if len(sys.argv) > 1 and sys.argv[1] == "generate":
-        excludeFile = ""
-
-        if len(sys.argv) == 3:
-            pathname = os.path.abspath(sys.argv[2])
-            if os.path.isfile(pathname):
-                excludeFile = sys.argv[2].replace("\\","/")
-            else:
-                print("Error: must pass valid file to exclude.\n", file=sys.stderr)
-                return
-        imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(excludeFile)
-        eigenVectors, eigenValues, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
-        writeData = {"imgList":imgList,"flatMean":flatMean,"demeanedImages":demeanedImages,"eigenVectors":eigenVectors, "eigenValues":eigenValues, "trainingDistances":trainingDistances, "threshold":threshold}
-        dh.writeData(writeData)
-
-    # otherwise, read the generated data from dataFile.dat and
+    # Read the generated data from dataFile.dat and
     # determine the best fit of the passed-in image
-    elif len(sys.argv) == 2:
+    if len(sys.argv) == 2:
         pathname = os.path.abspath(sys.argv[1])
         if os.path.isfile(pathname):                
             readData = dh.readData()
