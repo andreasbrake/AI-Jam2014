@@ -1,6 +1,5 @@
 import os, glob
 import numpy as np
-import dataHandler as db
 from PIL import Image
 
 # helper function to print out a flat image taking its height and
@@ -79,4 +78,4 @@ def computeCovarianceEigens(demeanedImages):
 
     #print np.uint8(covarianceEigenValues)
 
-    return covarianceEigenValues, covarianceEigenVectors
+    return covarianceEigenVectors
