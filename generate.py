@@ -19,13 +19,12 @@ def main():
             print("Error: must pass valid file to exclude")
             return
     imgList, flatMean, demeanedImages = eigGen.computeDemeanedImages(excludeFile)
-    pcaEigenvectors, pcaEigenvalues, deletedIndices = eigGen.computeCovarianceEigens(demeanedImages)
+    pcaEigenVectors, pcaEigenValues, deletedIndices, demeanedImages, trainingDistances, threshold = eigGen.computeCovarianceEigens(demeanedImages)
 
     imgList = np.delete(imgList, deletedIndices)
-    demeanedImages = np.delete(demeanedImages, deletedIndices, axis=1)
 
-    fisherFaces, trainingDistances, threshold = ff.generateFisherFaces(pcaEigenvectors, imgList, demeanedImages)
-    writeData = {"imgList":imgList,"flatMean":flatMean,"demeanedImages":demeanedImages,"fisherFaces":fisherFaces, "trainingDistances":trainingDistances, "threshold":threshold}
+    #fisherFaces, trainingDistances, threshold = ff.generateFisherFaces(pcaEigenVectors, imgList, demeanedImages)
+    writeData = {"imgList":imgList,"flatMean":flatMean,"demeanedImages":demeanedImages,"eigenVectors":pcaEigenVectors, "trainingDistances":trainingDistances, "threshold":threshold}
     
     print "time to generate: " + str(time.time() - startTime)
     dh.writeData(writeData)

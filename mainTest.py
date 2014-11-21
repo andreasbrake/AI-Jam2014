@@ -12,16 +12,19 @@ class TestRecognition():
 		numCorrect = 0 
 		total = 0 # should be 120 in total
 		incorrect = {}
-		for imgName in glob.glob("./img/*_*_.gif"):
-			
+		for imgName in glob.glob("./img/*_*_.bmp"):
+			imgName = imgName.replace("\\","/")
 			# determine the slicing indices based on file name
-			start = 6
-			end = 8 if self.isNumber(imgName[start:8]) else 7
+			#start = 6
+			#end = 8 if self.isNumber(imgName[start:8]) else 7
 
-			expected = imgName[start:end]
+			#expected = imgName[start:end]
+			expected = imgName.split("/")[-1].split("_")[0]
+			print("expecting: " + imgName)
 			actual = main.test(imgName) # test each face from the data set
-
-			if (expected == actual):
+			
+			print expected, actual
+			if (expected == actual[0]):
 				print "PASS\n"
 				numCorrect += 1
 			else:

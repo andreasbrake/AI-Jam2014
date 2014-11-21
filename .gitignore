@@ -1,5 +1,6 @@
 .vagrant/
 img/
 data/
+testResults/
 dataFile.dat
 *.pyc

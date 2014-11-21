@@ -16,7 +16,7 @@ def printImage(name, flatImage, height=243, width=320):
 def computeDemeanedImages(excludeFile=""):
     imgList = [] # the list of image names corresponding to one individual (i.e. 8)
 
-    for imgName in glob.glob("./img/*_*_.gif"):
+    for imgName in glob.glob("./img/*_*_.bmp"):
         imgName = imgName.replace("\\","/")
         if imgName != excludeFile:
             imgList.append(imgName)
@@ -33,9 +33,9 @@ def computeDemeanedImages(excludeFile=""):
 
     # build the mean image and populates arrays
     for img in imgList:
-        currentImage = np.array(Image.open(img), dtype = np.float)
+        currentImage = np.array(Image.open(img).convert("L"), dtype = np.float)
         meanImage = meanImage + (currentImage / numImages)
-        currentImage = np.resize(currentImage, (1, imgSize))
+        currentImage = np.resize(currentImage, (1, imgSize))        
 
         # type hacking
         if len(allImages) == 0:
@@ -61,7 +61,7 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
-    eigenValueMin = 1
+    eigenValueMin = 10
     eigenVectorsToRemove = []
     temCovar = []
     # remove the inaccurate eigenfaces
@@ -90,6 +90,25 @@ def computeCovarianceEigens(demeanedImages):
     # ind = np.argpartition(covarianceEigenValues, -3)[-3:]
     # eigenVectorsToRemove = np.append(eigenVectorsToRemove, ind)
     covarianceEigenVectors = np.delete(covarianceEigenVectors.T, eigenVectorsToRemove, 0).T
+    demeanedImages = np.delete(demeanedImages, eigenVectorsToRemove, axis=1)
 
+    # determine the distances between all training images
+    trainingDistances = []
+    faceSpaceTranspose = covarianceEigenVectors.T
+    demeanedImagesTranspose = demeanedImages.T
 
-    return covarianceEigenVectors, covarianceEigenValues, eigenVectorsToRemove
+    for i in range(len(demeanedImagesTranspose)):
+        trainingDistances.append(faceSpaceTranspose * demeanedImagesTranspose[i,:].T)
+
+    # Compute the threshold
+    threshold = 0
+    for i in range(len(trainingDistances)):
+        for k in range(i, len(trainingDistances)):
+            curDist = np.linalg.norm(trainingDistances[i] - trainingDistances[k])
+            if curDist > threshold:
+                threshold = curDist
+
+    # Half the max as per powerpoint slideshow from the internet
+    threshold /= 2
+
+    return covarianceEigenVectors, covarianceEigenValues, eigenVectorsToRemove, demeanedImages, trainingDistances, threshold
