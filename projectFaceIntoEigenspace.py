@@ -45,148 +45,41 @@ def trainingProjections(testImageName, imgList, faceSpace, demeanedImages, flatM
     # mean of all the distances to images of that individual and the
     # negative deviation from the mean.
 
-    minDistance = float("inf")
     imageDistances = [] # top 5 images
-    maxDistance = 0
-    minDistanceIndividual = "unknown"
     unidentifiable = True
     analDist = []
 
     for individual in distances:
-        weightedMean = 0
         meanDistance = 0
-        negDeviation = 0
 
         for distance in distances[individual][1]:
             imageDistances.append((individual, distance))
             meanDistance += distance
 
         meanDistance /= float(distances[individual][0])
-        weightedMean = meanDistance
-
-        negDevCount = 0
-        for distance in distances[individual][1]:
-            if distance < meanDistance:
-                negDeviation += pow(abs(distance - meanDistance), 1)
-                negDevCount += 1
-
-        if negDevCount != 0:
-            negDeviation /= negDevCount
-        if negDeviation != 0:
-            weightedMean /= negDeviation
 
         if meanDistance < threshold:
             unidentifiable = False
 
-        analDist.append((individual, meanDistance, negDeviation, weightedMean))
+        analDist.append((individual, meanDistance))
 
     analDist.sort(key=lambda tup: tup[1])
     newAnal = []
-    minMean = 0
+
     for i in range(0, len(analDist)):
-        if i < 5:
+        if i < 5 and len(analDist) > i:
             if analDist[i][1] < threshold:
                 print analDist[i], threshold
                 newAnal.append(analDist[i])
         else: 
             break
 
-    if analDist[1][1] < (analDist[0][1] * 1.1):
-        unidentifiable = True
-
-    newAnal.sort(key=lambda tup: tup[3])
-
-    print analDist[0][1], newAnal[0][1]
-    if newAnal[0][0] != analDist[0][0] and newAnal[0][1] > (analDist[0][1] * 1.2):
-        unidentifiable = True
-
-    """
-    # Compute the min distance from the test image to the face space
-    distance = float("inf")
-    maxDist = 0
-    idx = -1
-
-    for i in range(len(trainingDistances)):
-        curDist = np.linalg.norm(testImageDistance - trainingDistances[i])
-        if curDist < distance:
-            distance = curDist
-            idx = i
-        if curDist > maxDist:
-            maxDist = curDist
-        # if curDist < threshold:
-        #     unknown = False
-
-    print distance, threshold, maxDistance
-    
-    # print the id of the subject found
-    print imgList[idx]
-    """
     print unidentifiable
+    if len(newAnal) == 0:
+        return ("UNKNOWN_1",threshold)
+    if len(newAnal) > 1:
+        if newAnal[1][1] <= (newAnal[0][1] * 1.1):
+            return ("UNKNOWN_2",newAnal[0][1])
     if unidentifiable:
-        return ("UNKNOWN",newAnal[0][1])
+        return ("UNKNOWN_3",newAnal[0][1])
     return newAnal[0] #imgList[idx].split("/")[-1].split("_")[0]
-    
-
-    """
-    # Compute a weighted mean distance to each individual defined by the
-    # mean of all the distances to images of that individual and the
-    # negative deviation from the mean.
-
-    minDistance = float("inf")
-    imageDistances = [] # top 5 images
-    maxDistance = 0
-    minDistanceIndividual = "unknown"
-    unidentifiable = True
-    analDist = []
-
-    for individual in distances:
-        meanDistance = 0
-        for distance in distances[individual][1]:
-            imageDistances.append((individual, distance))
-            meanDistance += distance
-
-        meanDistance /= float(distances[individual][0])
-                     
-        negDeviation = 0
-        negDevCount = 0
-        for distance in distances[individual][1]:
-            if distance < meanDistance:
-                negDeviation += pow(abs(distance - meanDistance), 0.5)
-                negDevCount += 1
-
-        negDeviation /= negDevCount
-        weightedMean = meanDistance #100 * (meanDistance / negDeviation)
-           
-        analDist.append((individual, meanDistance, negDeviation, weightedMean))
-
-        if weightedMean < minDistance:
-            minDistance = weightedMean
-            minDistanceIndividual = (individual, meanDistance, negDeviation, weightedMean)#individual
-        if weightedMean > maxDistance:
-            maxDistance = weightedMean
-        if weightedMean < threshold:
-            unidentifiable = False
-
-    #newAnal = []
-    #for individual in analDist:
-    #    if individual[1] < minMean * 1.25:
-    #        newAnal.append(individual)
-    #analDist = newAnal
-
-    #for individual in analDist:
-    #    weightedMean = individual[3]
-        
-    imageDistances.sort(key=lambda tup: tup[1])
-    topImages = []
-    for i in range(0, len(imageDistances)):
-        if i < 5:
-            topImages.append(imageDistances[i][0])
-
-    print topImages
-
-    newAnal = []
-    for individual in analDist:
-        if individual[0] in topImages:
-            newAnal.append(individual)
-    analDist = newAnal
-"""
