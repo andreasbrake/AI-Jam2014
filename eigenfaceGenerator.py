@@ -61,7 +61,7 @@ def computeCovarianceEigens(demeanedImages):
     covarianceEigenValues, eigenVectors = np.linalg.eig(pseudoS)
     covarianceEigenVectors = demeanedImages * eigenVectors
 
-    eigenValueMin = 10
+    eigenValueMin = 50000000
     eigenVectorsToRemove = []
     temCovar = []
     # remove the inaccurate eigenfaces

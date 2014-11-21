@@ -13,7 +13,8 @@ def main():
         pathname = os.path.abspath(sys.argv[1])
         if os.path.isfile(pathname):                
             readData = dh.readData()
-            print(eigProj.trainingProjections(pathname, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"]))
+            #print("time to read: " + str(time.time() - startTime))
+            print(eigProj.trainingProjections(pathname, readData["imgList"], readData["eigenVectors"], readData["demeanedImages"], readData["flatMean"], readData["trainingDistances"], readData["threshold"])[0])
         else:
             print("Error: must pass valid file.\n", file=sys.stderr)
 
@@ -21,7 +22,7 @@ def main():
         print("Error: must pass the path to an image filename.", file=sys.stderr)
         print("Usage: python main.py blah.gif\n")
 
-    print("time take: " + str(time.time() - startTime))
+    #print("time take: " + str(time.time() - startTime))
 
 # added this method to ease unit testing
 def test(imgPath):

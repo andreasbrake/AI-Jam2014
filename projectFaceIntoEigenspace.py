@@ -69,17 +69,15 @@ def trainingProjections(testImageName, imgList, faceSpace, demeanedImages, flatM
     for i in range(0, len(analDist)):
         if i < 5 and len(analDist) > i:
             if analDist[i][1] < threshold:
-                print analDist[i], threshold
                 newAnal.append(analDist[i])
         else: 
             break
 
-    print unidentifiable
     if len(newAnal) == 0:
-        return ("UNKNOWN_1",threshold)
+        return ("UNKNOWN",threshold)
     if len(newAnal) > 1:
         if newAnal[1][1] <= (newAnal[0][1] * 1.1):
-            return ("UNKNOWN_2",newAnal[0][1])
+            return ("UNKNOWN",newAnal[0][1])
     if unidentifiable:
-        return ("UNKNOWN_3",newAnal[0][1])
+        return ("UNKNOWN",newAnal[0][1])
     return newAnal[0] #imgList[idx].split("/")[-1].split("_")[0]
